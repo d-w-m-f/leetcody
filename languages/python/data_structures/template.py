@@ -36,6 +36,3 @@ class Template:
         Average Case        O(N)
         Worst Case          O(N)
         """
-
-    def descr(self):
-        self.__str__()
