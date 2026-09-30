@@ -1,0 +1,16 @@
+[project]
+name = "leetcody-python-module"
+version = "0.1.0"
+description = "Python implementations of data structures and algos"
+authors = [
+    {name = "d-w-m-f",email = "derick.william.moraes@gmail.com"}
+]
+requires-python = ">=3.14"
+dependencies = [
+    "pytest (>=9.1.1,<10.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
