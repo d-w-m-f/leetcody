@@ -1,0 +1,57 @@
+# ================================
+# Byte-compiled / optimized files
+# ================================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ================================
+# Testing & Code Coverage
+# ================================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+
+# ================================
+# Virtual Environments
+# ================================
+.venv/
+venv/
+ENV/
+env/
+ENV*/
+env*/
+
+# ================================
+# Distribution & Packaging
+# ================================
+build/
+dist/
+*.egg-info/
+.eggs/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+*.egg
+
+# ================================
+# Static Analysis & Type Checking
+# ================================
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+
+# ================================
+# Jupyter Notebooks
+# ================================
+.ipynb_checkpoints/

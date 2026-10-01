@@ -1,0 +1,47 @@
+# ================================
+# OS & System Files
+# ================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+*.swp
+*.swo
+
+# ================================
+# IDEs and Editors
+# ================================
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+
+# VS Code (ignore user state, preserve project settings if desired)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ================================
+# Environment & Secrets
+# ================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ================================
+# Temporary & Log Files
+# ================================
+*.log
+*.tmp
+tmp/
+temp/
+.cache/
