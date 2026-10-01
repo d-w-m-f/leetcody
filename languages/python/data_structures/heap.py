@@ -6,11 +6,10 @@ def calculate_heap_capacity_from(heigth: int) -> int:
     return 2 ** heigth - 1
 
 def last_non_leaf(size: int) -> int | None:
-    if size == 1:
+    if size <= 1:
         return None
 
-    height_non_leafs = math.floor(math.sqrt(size)) - 1
-    return calculate_heap_capacity_from(heigth=height_non_leafs)
+    return (size - 2) // 2
 
 class Heap:
     HEAP_T = Literal['min', 'max']
@@ -50,7 +49,7 @@ class Heap:
         """
         self._check_resizing()
 
-        inserting_at = self._size-1
+        inserting_at = self._size
         self._heap_arr[inserting_at] = new_value
         self._size = self._size + 1
 
@@ -65,7 +64,13 @@ class Heap:
         n := height of the heap
         """
         if self._size == 0:
-            return
+            return None
+
+        popped = self._heap_arr[0]
+        if self._size == 1:
+            self._heap_arr[0] = None
+            self._size = 0
+            return popped
 
         # Switch root and last element in-place
         self._switch_nodes_inplace(at_1 = 0, at_2=self._size-1)
@@ -76,6 +81,7 @@ class Heap:
 
         # Heapify_down from the root
         self._heapify_down(at=0)
+        return popped
 
     def heapify(self, arr):
         """
@@ -89,16 +95,18 @@ class Heap:
         TIme complexity: O(n)
         n := length of the array.
         """
-        self._heigth = math.ceil(math.sqrt(len(arr)))
+        self._heigth = max(self.HEAP_MIN_HEIGHT, math.ceil(math.log2(len(arr) + 1))) if len(arr) > 0 else self.HEAP_MIN_HEIGHT
         self._capacity = calculate_heap_capacity_from(heigth=self._heigth)
 
         self._heap_arr = [None for i in range(self._capacity)]
         for i in range(len(arr)):
             self._heap_arr[i] = arr[i]
+        self._size = len(arr)
 
         last_non_leaf_idx = last_non_leaf(size=self._size)
-        for node_idx in range(start=last_non_leaf_idx, stop=1, step=-1):
-            self.heapify_up(node_idx)
+        if last_non_leaf_idx is not None:
+            for node_idx in range(last_non_leaf_idx, -1, -1):
+                self._heapify_down(at=node_idx)
 
     def fit(self):
         """
@@ -128,15 +136,21 @@ class Heap:
     def heap_type(self) -> str:
         return self._heap_t
 
+    def _check_resizing(self):
+        if self._size >= self._capacity:
+            self._redimention(scale='up')
 
     def _heapify_up(self, at: int):
-        if self._is_leaf_node(at=at):
+        if at == 0:
             return
 
-        next_at = self._ensure_heap_property(at=at)
-        if next_at is not None:
-            self._heapify_up(at=next_at)
-
+        parent_idx = (at - 1) // 2
+        if self._heap_t == 'min' and self._heap_arr[at] < self._heap_arr[parent_idx]:
+            self._switch_nodes_inplace(at_1=at, at_2=parent_idx)
+            self._heapify_up(at=parent_idx)
+        elif self._heap_t == 'max' and self._heap_arr[at] > self._heap_arr[parent_idx]:
+            self._switch_nodes_inplace(at_1=at, at_2=parent_idx)
+            self._heapify_up(at=parent_idx)
 
     def _heapify_down(self, at: int):
         if self._is_leaf_node(at=at):
@@ -156,14 +170,15 @@ class Heap:
             new_arr_buffer = [None for i in range(self._capacity)]
             for i in range(len(self._heap_arr)):
                 new_arr_buffer[i] = self._heap_arr[i]
+            self._heap_arr = new_arr_buffer
 
         def scale_down():
             self._heigth = max(self.HEAP_MIN_HEIGHT, self._heigth - 1)
             self._capacity = calculate_heap_capacity_from(heigth=self._heigth)
             new_arr_buffer = [None for i in range(self._capacity)]
-            for i in range(len(new_arr_buffer)):
+            for i in range(min(len(self._heap_arr), self._capacity)):
                 new_arr_buffer[i] = self._heap_arr[i]
-
+            self._heap_arr = new_arr_buffer
 
         if scale == 'up':
             scale_up()
@@ -171,51 +186,38 @@ class Heap:
             scale_down()
 
     def _is_leaf_node(self, at: int) -> bool:
-        left_idx = 2*at + 1
-        right_idx = 2*at + 2
-
-        if left_idx > self._capacity:
-            return True
-        if self._heap_arr[left_idx] == None and self._heap_arr[right_idx] == None:
-            return True
-
-        return False
+        return (2 * at + 1) >= self._size
 
     def _ensure_heap_property(self, at: int) -> int | None:
         def ensure_min_heap_structure(at: int) -> int | None:
             left_idx = 2*at + 1
             right_idx = 2*at + 2
+            smallest = at
 
-            if (
-                self._heap_arr[at] <= self._heap_arr[left_idx] and 
-                self._heap_arr[at] <= self._heap_arr[right_idx]
-            ):
-                return None
+            if left_idx < self._size and self._heap_arr[left_idx] < self._heap_arr[smallest]:
+                smallest = left_idx
+            if right_idx < self._size and self._heap_arr[right_idx] < self._heap_arr[smallest]:
+                smallest = right_idx
 
-            if self._heap_arr[left_idx] <= self._heap_arr[right_idx]:
-                 self._switch_nodes_inplace(at_1=at, at_2=left_idx)
-                 return left_idx
+            if smallest != at:
+                self._switch_nodes_inplace(at_1=at, at_2=smallest)
+                return smallest
+            return None
 
-            self._switch_nodes_inplace(at_1=at, at_2=right_idx)
-            return right_idx
-
-        
         def ensure_max_heap_structure(at: int) -> int | None:
             left_idx = 2*at + 1
             right_idx = 2*at + 2
+            largest = at
 
-            if (
-                self._heap_arr[at] >= self._heap_arr[left_idx] and 
-                self._heap_arr[at] >= self._heap_arr[right_idx]
-            ):
-                return None
+            if left_idx < self._size and self._heap_arr[left_idx] > self._heap_arr[largest]:
+                largest = left_idx
+            if right_idx < self._size and self._heap_arr[right_idx] > self._heap_arr[largest]:
+                largest = right_idx
 
-            if self._heap_arr[left_idx] >= self._heap_arr[right_idx]:
-                self._switch_nodes_inplace(at_1=at, at_2=left_idx)
-                return left_idx
-
-            self._switch_nodes_inplace(at_1=at, at_2=right_idx)
-            return right_idx
+            if largest != at:
+                self._switch_nodes_inplace(at_1=at, at_2=largest)
+                return largest
+            return None
         
         if self._heap_t == 'min':
             return ensure_min_heap_structure(at=at)
@@ -225,4 +227,5 @@ class Heap:
         aux = self._heap_arr[at_1]
         self._heap_arr[at_1] = self._heap_arr[at_2]
         self._heap_arr[at_2] = aux
+
         

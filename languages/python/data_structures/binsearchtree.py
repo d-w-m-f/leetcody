@@ -14,13 +14,15 @@ class BaseNode:
         return self.value <= other.value
 
     def __lt__(self, other):
-        return self.value > other.value
+        return self.value < other.value
 
     def __eq__(self, other):
+        if other is None or not hasattr(other, 'value'):
+            return False
         return self.value == other.value
     
     def __ne__(self, other):
-        return self.value != other.value
+        return not self.__eq__(other)
 
 
 class BinSearchTreeNode(BaseNode):
@@ -39,12 +41,12 @@ class BinSearchTree:
     def add(self, node: BinSearchTreeNode) -> int | None:
         def recursive_add(node_at: BinSearchTreeNode, new_node: BinSearchTreeNode):
             if new_node <= node_at:
-                if node_at.left == None:
+                if node_at.left is None:
                     node_at.left = new_node
                     return
                 return recursive_add(node_at=node_at.left, new_node=new_node)
 
-            if node_at.right == None:
+            if node_at.right is None:
                 node_at.right = new_node
                 return
             recursive_add(node_at=node_at.right, new_node=new_node)
@@ -59,7 +61,7 @@ class BinSearchTree:
                 return False
             if node_at == value:
                 return True
-            if node_at < value:
+            if value < node_at:
                 return recursive_find(node_at=node_at.left, value=value)
             return recursive_find(node_at=node_at.right, value=value)
 
@@ -87,7 +89,7 @@ class ArrBinSearchTree:
 
     def add(self, node: ArrBinSearchTreeNode):
         def recursive_add(node, at):
-            if at >= self._capacity:
+            while at >= self._capacity:
                 self._grow_size()
 
             lookup_node = self._tree[at]
@@ -100,7 +102,7 @@ class ArrBinSearchTree:
             return recursive_add(node, (at*2)+2)
 
         if self._size == 0:
-            return self._add_root()
+            return self._add_root(node)
         
         added_at = recursive_add(node=node, at=0)
         self._size = self._size + 1
